@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Minha To Do List</title>
+  <style>
+    body {
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #f2f2f2; 
+        color: #B1A2CA;
+    }
+    h1 {
+        margin-bottom: 20px;
+    }
+    input {
+        padding: 8px;
+        width: 200px;
+        border: 2px solid #B1A2CA;
+        border-radius: 5px;
+    }
+    button {
+        padding: 8px 12px;
+        margin-left: 5px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #B1A2CA;
+        color: white;
+        font-weight: bold;
+    }
+    button:hover {
+        opacity: 0.8;
+    }
+    ul {
+        list-style: none;
+        padding: 0;
+        max-width: 400px;
+        margin: 20px auto;
+    }
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        color: black;
+        margin: 5px 0;
+        padding: 8px;
+        border-radius: 8px;
+        box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+    }
+    .feito {
+        text-decoration: line-through;
+        color: gray;
+    }
+    .acoes button {
+        margin-left: 5px;
+        background-color: #B1A2CA;
+        color: white;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>💜 Minha To Do List 💜</h1>
+
+  <input id="tarefaInput" type="text" placeholder="Digite uma tarefa">
+  <button onclick="adicionarTarefa()">Adicionar</button>
+  <button onclick="limparTudo()">Limpar Tudo</button>
+
+  <ul id="listaTarefas"></ul>
+
+  <script>
+    const input = document.getElementById("tarefaInput");
+    const lista = document.getElementById("listaTarefas");
+
+    // --- Funções de armazenamento ---
+    function salvarTarefas() {
+      const tarefas = [];
+      lista.querySelectorAll("li").forEach(li => {
+        tarefas.push({
+          texto: li.querySelector("span").textContent,
+          feito: li.querySelector("span").classList.contains("feito")
+        });
+      });
+      localStorage.setItem("tarefas", JSON.stringify(tarefas));
+    }
+
+    function carregarTarefas() {
+      const tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+      tarefas.forEach(t => criarTarefa(t.texto, t.feito));
+    }
+
+    // --- Criar tarefa (função central) ---
+    function criarTarefa(texto, feito=false) {
+      const li = document.createElement("li");
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = feito;
+      checkbox.onclick = () => {
+        span.classList.toggle("feito");
+        salvarTarefas();
+      };
+
+      const span = document.createElement("span");
+      span.textContent = texto;
+      if (feito) span.classList.add("feito");
+
+      const acoes = document.createElement("div");
+      acoes.className = "acoes";
+
+      const btnEditar = document.createElement("button");
+      btnEditar.textContent = "✏️";
+      btnEditar.onclick = () => {
+        const novoTexto = prompt("Edite a tarefa:", span.textContent);
+        if (novoTexto) {
+          span.textContent = novoTexto;
+          salvarTarefas();
+        }
+      };
+
+      const btnRemover = document.createElement("button");
+      btnRemover.textContent = "❌";
+      btnRemover.onclick = () => {
+        li.remove();
+        salvarTarefas();
+      };
+
+      acoes.appendChild(btnEditar);
+      acoes.appendChild(btnRemover);
+
+      li.appendChild(checkbox);
+      li.appendChild(span);
+      li.appendChild(acoes);
+
+      lista.appendChild(li);
+      salvarTarefas();
+    }
+
+    // --- Adicionar tarefa ---
+    function adicionarTarefa() {
+      if (input.value.trim() === "") return alert("Digite uma tarefa!");
+      criarTarefa(input.value);
+      input.value = "";
+    }
+
+    // --- Limpar tudo ---
+    function limparTudo() {
+      lista.innerHTML = "";
+      localStorage.removeItem("tarefas");
+    }
+
+    // --- Enter também adiciona ---
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") adicionarTarefa();
+    });
+
+    // --- Carregar ao abrir ---
+    carregarTarefas();
+  </script>
+</body>
+</html>
