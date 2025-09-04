@@ -61,6 +61,10 @@
         width: 30px;
         height: 30px;
     }
+    #searchWrapper {
+        display: none; /* Inicialmente oculto */
+        margin: 10px 0;
+    }
   </style>
 </head>
 <body>
@@ -70,16 +74,20 @@
   <button onclick="adicionarTarefa()">Adicionar</button>
   <button onclick="limparTudo()">Limpar Tudo</button>
 
-  <!-- Campo de pesquisa -->
-  <input type="text" id="search" placeholder="Pesquisar tarefas...">
-  <!-- Botão de pesquisa -->
-  <button onclick="buscartarefas()">Buscar Tarefas</button>
+  <!-- Botão para mostrar a barra de pesquisa -->
+  <button onclick="toggleSearch()">🔍 Pesquisar Tarefas</button>
+
+  <!-- Barra de pesquisa que será exibida ao clicar no botão -->
+  <div id="searchWrapper">
+    <input type="text" id="search" placeholder="Pesquisar tarefas..." oninput="filtrarTarefas()">
+  </div>
 
   <ul id="listaTarefas"></ul>
 
   <script>
     const input = document.getElementById("tarefaInput");
     const lista = document.getElementById("listaTarefas");
+    const searchWrapper = document.getElementById("searchWrapper");
 
     // --- Funções de armazenamento ---
     function salvarTarefas() {
@@ -163,20 +171,25 @@
       if (e.key === "Enter") adicionarTarefa();
     });
 
-    // --- Carregar ao abrir ---
+    // --- Carregar tarefas ao abrir ---
     carregarTarefas();
 
-    // --- Função de filtro para busca ao clicar no botão ---
-    function buscartarefas() {
-      const buscar = document.getElementById("search").value.toLowerCase(); // Pega o valor da pesquisa
-      const tarefas = document.querySelectorAll("#listaTarefas li"); // Pega todas as tarefas
+    // --- Função para exibir ou esconder a barra de pesquisa ---
+    function toggleSearch() {
+      searchWrapper.style.display = (searchWrapper.style.display === "none" || searchWrapper.style.display === "") ? "block" : "none";
+    }
+
+    // --- Função para filtrar as tarefas em tempo real ---
+    function filtrarTarefas() {
+      const buscar = document.getElementById("search").value.toLowerCase();
+      const tarefas = document.querySelectorAll("#listaTarefas li");
 
       tarefas.forEach(function(tarefa) {
-        const texto = tarefa.textContent.toLowerCase(); // Pega o texto de cada tarefa
+        const texto = tarefa.querySelector("span").textContent.toLowerCase(); // Pegando só o texto da tarefa
         if (texto.includes(buscar)) {
-          tarefa.style.display = "list-item"; // Exibe a tarefa se ela corresponder ao filtro
+          tarefa.style.display = "list-item"; // Exibe se a tarefa corresponder ao filtro
         } else {
-          tarefa.style.display = "none"; // Esconde a tarefa se não corresponder ao filtro
+          tarefa.style.display = "none"; // Esconde se não corresponder
         }
       });
     }
